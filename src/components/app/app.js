@@ -1,137 +1,40 @@
-import { Component } from 'react'
-import { v4 as uuidv4 } from 'uuid';
-import AppInfo from '../app-info/app-info'
-import SearchPanel from '../search-panel/search-panel'
-import AppFilter from '../app-filter/app-filter'
-import EmloyeesList from '../employees-list/employees-list'
-import EmployeesAddForm from '../employees-add-form/employees-add-form'
-import './app.css'
+import { Component } from 'react';
+import AppHeader from "../appHeader/AppHeader";
+import RandomChar from "../randomChar/RandomChar";
+import CharList from "../charList/CharList";
+import CharInfo from "../charInfo/CharInfo";
+import ErrorBoundary from '../errorBoundary/ErrorBoundary';
+
+import decoration from '../../resources/img/bg asset.png'
 
 class App extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      data: [
-          {name: 'John C.', salary: 800, increase: false, rise: true, id: 1},
-          {name: 'Alex M.', salary: 3000, increase: true, rise: false, id: 2},
-          {name: 'Jessica P.', salary: 5000, increase: false, rise: false, id: 3}
-        ],
-        term: '', 
-        filter: 'all'
+    state = {
+        selectedChar: null
     }
-  }
 
-  deleteItem = (id) => {
-    this.setState(({data}) => {
-      return {
-        data: data.filter(item => item.id !== id)
-      }
-      
-    })
-  }
-
-  addItem = (name, salary) => {
-    const newItem = {
-       name,
-       salary,
-       increase: false,
-       rise: false,
-       id: uuidv4()
+    onCharSelected = (id) => {
+        this.setState({
+            selectedChar: id
+        })
     }
-    this.setState(({data}) => {
-      const newArr = [...data, newItem]
-      return {
-        data: newArr
-      }
-    })
-  }
-
-  onToggleProp = (id, prop) => {
-    this.setState(({data}) => ({
-      data: data.map(item => {
-        if (item.id === id) {
-          return {...item, [prop]: !item[prop]}
-        }
-        return item
-      })
-    }))
-  }
-
-  searchEmp = (items, term) => {
-     if (term.length === 0) {
-      return items
-     }
-     return items.filter(item => {
-      return item.name.indexOf(term) > -1
-     })
-  }
-
-  onUpdateSearch = (term) => {
-    this.setState({term})
-  }
-
-  filterPost = (items, filter) => {
-    switch (filter) {
-      case 'rise': 
-        return items.filter(item => item.rise)
-      case 'moreThan1000':
-         return items.filter(item => item.salary > 1000)
-      default: return items
-      
+    render() {
+        return (
+            <div className="app">
+                <AppHeader/>
+                <main>
+                    <RandomChar/>
+                    <div className="char__content">
+                        <CharList onCharSelected={this.onCharSelected} />
+                        <ErrorBoundary>
+                           <CharInfo charId={this.state.selectedChar} />
+                        </ErrorBoundary>
+                    </div>
+                    <img className="bg-decoration" src={decoration} alt="vision"/>
+                </main>
+            </div>
+        )
     }
-  }
-
-  onFilterSelect = (filter) => {
-    this.setState({filter})
-  }
-
-  // onToggleIncrease = (id) => {
-  //   this.setState(({data}) => ({
-  //     data: data.map(item => {
-  //       if (item.id === id) {
-  //         return {...item, increase: !item.increase}
-  //       }
-  //       return item
-  //     })
-  //   }))
-  // }
-
-  // onToggleRise = (id) => {
-  //   this.setState(({data}) => ({
-  //     data: data.map(item => {
-  //       if (item.id === id) {
-  //         return {...item, rise: !item.rise}
-  //       }
-  //       return item
-  //     })
-  //   }))
-  // }
-
-  render() {
-    const {data, term, filter} = this.state
-    const employees = this.state.data.length
-    const increased = this.state.data.filter(item => item.increase).length
-    const visibleData = this.filterPost(this.searchEmp(data, term), filter)    
-     return (
-       <div className="app">
-         <AppInfo employees={employees} increased={increased}/>
-
-       <div className="search-panel">
-           <SearchPanel onUpdateSearch={this.onUpdateSearch} />
-           <AppFilter filter={filter} onFilterSelect={this.onFilterSelect}/>
-        </div>
-
-        <EmloyeesList 
-           data={visibleData}
-           onDelete={this.deleteItem}
-           onToggleProp={this.onToggleProp}/>
-        <EmployeesAddForm onAdd={this.addItem}/>
-    </div>
-  )
+   
 }
 
-  
-
-}
-
-export default App
+export default App;
